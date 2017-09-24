@@ -309,6 +309,7 @@ class FgcmChisq(object):
 
         obsExpIndex = snmm.getArray(self.fgcmStars.obsExpIndexHandle)
         obsBandIndex = snmm.getArray(self.fgcmStars.obsBandIndexHandle)
+        obsLUTFilterIndex = snmm.getArray(self.fgcmStars.obsLUTFilterIndexHandle)
         obsCCDIndex = snmm.getArray(self.fgcmStars.obsCCDHandle) - self.ccdStartIndex
         obsFlag = snmm.getArray(self.fgcmStars.obsFlagHandle)
         obsSecZenith = snmm.getArray(self.fgcmStars.obsSecZenithHandle)
@@ -324,6 +325,7 @@ class FgcmChisq(object):
         # cut these down now, faster later
         obsObjIDIndexGO = obsObjIDIndex[goodObs]
         obsBandIndexGO = obsBandIndex[goodObs]
+        obsLUTFilterIndexGO = obsLUTFilterIndex[goodObs]
         obsExpIndexGO = obsExpIndex[goodObs]
         obsSecZenithGO = obsSecZenith[goodObs]
         obsCCDIndexGO = obsCCDIndex[goodObs]
@@ -336,7 +338,7 @@ class FgcmChisq(object):
         # add GO to index names that are cut to goodObs
         # add GOF to index names that are cut to goodObs[obsFitUseGO]
 
-        lutIndicesGO = self.fgcmLUT.getIndices(obsBandIndexGO,
+        lutIndicesGO = self.fgcmLUT.getIndices(obsLUTFilterIndexGO,
                                                self.fgcmPars.expPWV[obsExpIndexGO],
                                                self.fgcmPars.expO3[obsExpIndexGO],
                                                np.log(self.fgcmPars.expTau[obsExpIndexGO]),
@@ -404,7 +406,7 @@ class FgcmChisq(object):
                                                obsBandIndexGO] * I10GO) /
                                   (1.0 + objSEDSlope[obsObjIDIndexGO,
                                                      obsBandIndexGO] *
-                                   self.fgcmLUT.I10Std[obsBandIndexGO]))
+                                   self.fgcmLUT.I10Std[obsLUTFilterIndexGO]))
 
         # we can only do this for calibration stars.
         #  must reference the full array to save
@@ -669,32 +671,6 @@ class FgcmChisq(object):
                          self.fgcmPars.parPWVInterceptLoc +
                          uNightIndexNoExt] += 1
 
-            # PWV Nightly Slope
-            #np.add.at(magdLdPWVSlope,
-            #          (expNightIndexGOF[noExtGOF],
-            #           obsBandIndexGO[obsFitUseGO[noExtGOF]]),
-            #          self.fgcmPars.expDeltaUT[obsExpIndexGO[obsFitUseGO[noExtGOF]]] *
-            #          dLdPWVGO[obsFitUseGO[noExtGOF]] /
-            #          obsMagErr2GO[obsFitUseGO[noExtGOF]])
-            #np.multiply.at(magdLdPWVSlope,
-            #               (expNightIndexGOF[noExtGOF],
-            #                obsBandIndexGO[obsFitUseGO[noExtGOF]]),
-            #               objMagStdMeanErr2GO[obsFitUseGO[noExtGOF]])
-            #np.add.at(partialArray[self.fgcmPars.parPWVSlopeLoc:
-            #                           (self.fgcmPars.parPWVSlopeLoc+
-            #                            self.fgcmPars.nCampaignNights)],
-            #          expNightIndexGOF[noExtGOF],
-            #          deltaMagWeightedGOF[noExtGOF] * (
-            #        (self.fgcmPars.expDeltaUT[obsExpIndexGO[obsFitUseGO[noExtGOF]]] *
-            #         dLdPWVGO[obsFitUseGO[noExtGOF]] -
-            #         magdLdPWVSlope[expNightIndexGOF[noExtGOF],
-            #                        obsBandIndexGO[obsFitUseGO[noExtGOF]]])))
-
-            #partialArray[self.fgcmPars.parPWVSlopeLoc +
-            #             uNightIndex] *= (2.0 / unitDict['pwvSlopeUnit'])
-            #partialArray[self.fgcmPars.nFitPars +
-            #             self.fgcmPars.parPWVSlopeLoc] += 1
-
             # PWV Nightly Percent Slope
             np.add.at(magdLdPWVPerSlope,
                       (expNightIndexGOF[noExtGOF],
@@ -806,33 +782,6 @@ class FgcmChisq(object):
             partialArray[self.fgcmPars.nFitPars +
                          self.fgcmPars.parTauInterceptLoc +
                          uNightIndexNoExt] += 1
-
-            # Tau Nightly Slope
-            #np.add.at(magdLdTauSlope,
-            #         (expNightIndexGOF[noExtGOF],
-            #           obsBandIndexGO[obsFitUseGO[noExtGOF]]),
-            #          self.fgcmPars.expDeltaUT[obsExpIndexGO[obsFitUseGO[noExtGOF]]] *
-            #          dLdTauGO[obsFitUseGO[noExtGOF]] /
-            #          obsMagErr2GO[obsFitUseGO[noExtGOF]])
-            #np.multiply.at(magdLdTauSlope,
-            #               (expNightIndexGOF[noExtGOF],
-            #                obsBandIndexGO[obsFitUseGO[noExtGOF]]),
-            #               objMagStdMeanErr2GO[obsFitUseGO[noExtGOF]])
-            #np.add.at(partialArray[self.fgcmPars.parTauSlopeLoc:
-            #                           (self.fgcmPars.parTauSlopeLoc+
-            #                            self.fgcmPars.nCampaignNights)],
-            #          expNightIndexGOF[noExtGOF],
-            #          deltaMagWeightedGOF[noExtGOF] * (
-            #        (self.fgcmPars.expDeltaUT[obsExpIndexGO[obsFitUseGO[noExtGOF]]] *
-            #         dLdTauGO[obsFitUseGO[noExtGOF]] -
-            #         magdLdTauSlope[expNightIndexGOF[noExtGOF],
-            #                        obsBandIndexGO[obsFitUseGO[noExtGOF]]])))
-
-            #partialArray[self.fgcmPars.parTauSlopeLoc +
-            #             uNightIndexNoExt] *= (2.0 / unitDict['tauSlopeUnit'])
-            #partialArray[self.fgcmPars.nFitPars +
-            #             self.fgcmPars.parTauSlopeLoc +
-            #             uNightIndexNoExt] += 1
 
             # Tau nightly percent slope
             np.add.at(magdLdTauPerSlope,
