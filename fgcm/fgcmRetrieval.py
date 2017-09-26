@@ -172,7 +172,7 @@ class FgcmRetrieval(object):
 
         obsObjIDIndexGO = snmm.getArray(self.fgcmStars.obsObjIDIndexHandle)[goodObs]
         obsBandIndexGO = snmm.getArray(self.fgcmStars.obsBandIndexHandle)[goodObs]
-        #obsLUTFilterIndexGO = snmm.getArray(self.fgcmStars.obsLUTFilterIndexHandle)[goodObs]
+        obsLUTFilterIndexGO = snmm.getArray(self.fgcmStars.obsLUTFilterIndexHandle)[goodObs]
         obsCCDIndexGO = snmm.getArray(self.fgcmStars.obsCCDHandle)[goodObs] - self.ccdStartIndex
         obsMagADUGO = snmm.getArray(self.fgcmStars.obsMagADUHandle)[goodObs]
         obsMagErrGO = snmm.getArray(self.fgcmStars.obsMagADUErrHandle)[goodObs]
@@ -194,7 +194,8 @@ class FgcmRetrieval(object):
         fObsGO = 10.**(-0.4*deltaMagGO)
         fObsErr2GO = deltaMagErr2GO * ((2.5/np.log(10.)) * fObsGO)**2.
         deltaStdGO = (1.0 + objSEDSlope[obsObjIDIndexGO,
-                                        obsBandIndexGO])
+                                        obsBandIndexGO] *
+                      self.I10Std[obsLUTFilterIndexGO])
         deltaStdWeightGO = 1./(fObsErr2GO * deltaStdGO * deltaStdGO)
 
         # and compress obsExpIndexGO
