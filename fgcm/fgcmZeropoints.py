@@ -102,6 +102,7 @@ class FgcmZeropoints(object):
                                    ('FGCM_FLAT','f8'), # done
                                    ('FGCM_APERCORR','f8'), # done
                                    ('EXPTIME','f4'), # done
+                                   ('FILTERNAME','a2'), 
                                    ('BAND','a2')]) # done
 
         atmStruct = np.zeros(self.fgcmPars.nExp,
@@ -126,6 +127,7 @@ class FgcmZeropoints(object):
         zpCCDIndex = zpStruct[self.ccdField] - self.ccdStartIndex
 
         # fill exposure quantities
+        zpStruct['FILTERNAME'][:] = self.fgcmPars.lutFilterNames[self.fgcmPars.expLUTFilterIndex[zpExpIndex]]
         zpStruct['BAND'][:] = self.fgcmPars.bands[self.fgcmPars.expBandIndex[zpExpIndex]]
         zpStruct['EXPTIME'][:] = self.fgcmPars.expExptime[zpExpIndex]
 
@@ -494,6 +496,7 @@ class FgcmZeropoints(object):
         """
         """
 
+        # sigFgcm is computed per *band* not per *filter*
         sigFgcm = self.fgcmPars.compSigFgcm[self.fgcmPars.expBandIndex[zpExpIndex[zpIndex]]]
         nTilingsM1 = np.clip(zpStruct['FGCM_TILINGS'][zpIndex]-1.0,1.0,1e10)
 
