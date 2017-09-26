@@ -43,6 +43,9 @@ class FgcmChisq(object):
         self.ccdStartIndex = fgcmConfig.ccdStartIndex
         self.nStarPerRun = fgcmConfig.nStarPerRun
 
+        # these are the standard *band* I10s
+        self.I10StdBand = fgcmConfig.I10StdBand
+
         if (fgcmConfig.useSedLUT and self.fgcmLUT.hasSedLUT):
             self.useSedLUT = True
         else:
@@ -406,7 +409,7 @@ class FgcmChisq(object):
                                                obsBandIndexGO] * I10GO) /
                                   (1.0 + objSEDSlope[obsObjIDIndexGO,
                                                      obsBandIndexGO] *
-                                   self.fgcmLUT.I10Std[obsLUTFilterIndexGO]))
+                                   self.I10StdBand[obsBandIndexGO]))
 
         # we can only do this for calibration stars.
         #  must reference the full array to save
