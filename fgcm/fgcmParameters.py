@@ -47,7 +47,7 @@ class FgcmParameters(object):
 
         self.fgcmLog = fgcmConfig.fgcmLog
 
-        self.fgcmLog.log('INFO','Initializing FgcmParameters...')
+        self.fgcmLog.info('Initializing FgcmParameters...')
 
         # for plotting
         self.minExpPerNight = fgcmConfig.minExpPerNight
@@ -195,7 +195,7 @@ class FgcmParameters(object):
         ## FIXME: need to completely refactor
         self.externalPWVFlag = np.zeros(self.nExp,dtype=np.bool)
         if (self.pwvFile is not None):
-            self.fgcmLog.log('INFO','Found external PWV file.')
+            self.fgcmLog.info('Found external PWV file.')
             self.pwvFile = self.pwvFile
             self.hasExternalPWV = True
             self.loadExternalPWV(self.externalPWVDeltaT)
@@ -205,7 +205,7 @@ class FgcmParameters(object):
 
         self.externalTauFlag = np.zeros(self.nExp,dtype=np.bool)
         if (self.tauFile is not None):
-            self.fgcmLog.log('INFO','Found external tau file.')
+            self.fgcmLog.info('Found external tau file.')
             self.tauFile = self.tauFile
             self.hasExternalTau = True
             self.loadExternalTau()
@@ -269,16 +269,16 @@ class FgcmParameters(object):
                               'qeSysSlopeUnit': inParInfo['QESYSSLOPEUNIT'][0]}
 
         # and log
-        self.fgcmLog.log('INFO','tau step unit set to %f' % (self.unitDictSteps['tauUnit']))
-        self.fgcmLog.log('INFO','tau percent slope step unit set to %f' %
+        self.fgcmLog.info('tau step unit set to %f' % (self.unitDictSteps['tauUnit']))
+        self.fgcmLog.info('tau percent slope step unit set to %f' %
                          (self.unitDictSteps['tauPerSlopeUnit']))
-        self.fgcmLog.log('INFO','alpha step unit set to %f' % (self.unitDictSteps['alphaUnit']))
-        self.fgcmLog.log('INFO','pwv step unit set to %f' % (self.unitDictSteps['pwvUnit']))
-        self.fgcmLog.log('INFO','pwv percent slope step unit set to %f' %
+        self.fgcmLog.info('alpha step unit set to %f' % (self.unitDictSteps['alphaUnit']))
+        self.fgcmLog.info('pwv step unit set to %f' % (self.unitDictSteps['pwvUnit']))
+        self.fgcmLog.info('pwv percent slope step unit set to %f' %
                          (self.unitDictSteps['pwvPerSlopeUnit']))
-        self.fgcmLog.log('INFO','O3 step unit set to %f' % (self.unitDictSteps['o3Unit']))
-        self.fgcmLog.log('INFO','wash step unit set to %f' % (self.unitDictSteps['qeSysUnit']))
-        self.fgcmLog.log('INFO','wash slope step unit set to %f' %
+        self.fgcmLog.info('O3 step unit set to %f' % (self.unitDictSteps['o3Unit']))
+        self.fgcmLog.info('wash step unit set to %f' % (self.unitDictSteps['qeSysUnit']))
+        self.fgcmLog.info('wash slope step unit set to %f' %
                          (self.unitDictSteps['qeSysSlopeUnit']))
 
         # look at external...
@@ -381,7 +381,7 @@ class FgcmParameters(object):
 
         self.nExp = self.nExp
 
-        self.fgcmLog.log('INFO','Loading info on %d exposures.' % (self.nExp))
+        self.fgcmLog.info('Loading info on %d exposures.' % (self.nExp))
 
         self.expArray = expInfo[self.expField]
         self.expFlag = np.zeros(self.nExp,dtype=np.int8)
@@ -396,7 +396,7 @@ class FgcmParameters(object):
         self.campaignNights = np.unique(mjdForNight)
         self.nCampaignNights = self.campaignNights.size
 
-        self.fgcmLog.log('INFO','Exposures taken on %d nights.' % (self.nCampaignNights))
+        self.fgcmLog.info('Exposures taken on %d nights.' % (self.nCampaignNights))
 
         self.expDeltaUT = (self.expMJD + self.UTBoundary) - mjdForNight
 
@@ -446,7 +446,7 @@ class FgcmParameters(object):
 
             use,=np.where(expFilterName == filterName)
             if use.size == 0:
-                self.fgcmLog.log('INFO','WARNING: no exposures in filter %s' % (filterName))
+                self.fgcmLog.info('WARNING: no exposures in filter %s' % (filterName))
             else:
                 self.expBandIndex[use] = bandIndex
                 self.expLUTFilterIndex[use] = filterIndex
@@ -454,7 +454,7 @@ class FgcmParameters(object):
         #bad,=np.where(self.expBandIndex < 0)
         bad,=np.where(self.expLUTFilterIndex < 0)
         if (bad.size > 0):
-            self.fgcmLog.log('INFO','***Warning: %d exposures with band not in LUT!' % (bad.size))
+            self.fgcmLog.info('***Warning: %d exposures with band not in LUT!' % (bad.size))
             self.expFlag[bad] = self.expFlag[bad] | expFlagDict['BAND_NOT_IN_LUT']
 
         # flag those that have extra bands
@@ -570,7 +570,7 @@ class FgcmParameters(object):
         import fitsio
 
         # save the parameter file...
-        self.fgcmLog.log('INFO','Saving parameters to %s' % (parFile))
+        self.fgcmLog.info('Saving parameters to %s' % (parFile))
 
         parInfo, pars = self.parsToArrays()
 
@@ -721,7 +721,7 @@ class FgcmParameters(object):
         self.parExternalPWVScale = 1.0
 
         match, = np.where(self.externalPWVFlag)
-        self.fgcmLog.log('INFO','%d exposures of %d have external pwv values' % (match.size,self.nExp))
+        self.fgcmLog.info('%d exposures of %d have external pwv values' % (match.size,self.nExp))
 
 
     def loadExternalTau(self, withAlpha=False):
@@ -738,7 +738,7 @@ class FgcmParameters(object):
         """
         """
         # takes in a parameter array and loads the local split copies?
-        self.fgcmLog.log('DEBUG','Reloading parameter array')
+        self.fgcmLog.debug('Reloading parameter array')
 
         if (parArray.size != self.nFitPars):
             raise ValueError("parArray must have %d elements." % (self.nFitPars))
@@ -781,7 +781,7 @@ class FgcmParameters(object):
         """
         """
 
-        self.fgcmLog.log('DEBUG','Computing exposure values from parameters')
+        self.fgcmLog.debug('Computing exposure values from parameters')
 
         # I'm guessing that these don't need to be wrapped in shms but I could be wrong
         #  about the full class, which would suck.
@@ -823,7 +823,7 @@ class FgcmParameters(object):
         """
         """
 
-        self.fgcmLog.log('DEBUG','Retrieving parameter array')
+        self.fgcmLog.debug('Retrieving parameter array')
 
         # extracts parameters into a linearized array
         parArray = np.zeros(self.nFitPars,dtype=np.float64)
@@ -862,7 +862,7 @@ class FgcmParameters(object):
     def getParBounds(self,fitterUnits=False):
         """
         """
-        self.fgcmLog.log('DEBUG','Retrieving parameter bounds')
+        self.fgcmLog.debug('Retrieving parameter bounds')
 
         unitDict = self.getUnitDict(fitterUnits=fitterUnits)
 

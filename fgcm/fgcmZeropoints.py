@@ -27,7 +27,7 @@ class FgcmZeropoints(object):
 
         self.fgcmLog = fgcmConfig.fgcmLog
 
-        self.fgcmLog.log('INFO','Initializing FgcmZeropoints...')
+        self.fgcmLog.info('Initializing FgcmZeropoints...')
 
         self.illegalValue = fgcmConfig.illegalValue
         self.outputPath = fgcmConfig.outputPath
@@ -81,7 +81,7 @@ class FgcmZeropoints(object):
 
         # set up output structures
 
-        self.fgcmLog.log('INFO','Building zeropoint structure...')
+        self.fgcmLog.info('Building zeropoint structure...')
 
         zpStruct = np.zeros(self.fgcmPars.nExp*self.fgcmPars.nCCD,
                             dtype=[(self.expField,'i4'), # done
@@ -154,7 +154,7 @@ class FgcmZeropoints(object):
         zpStruct['FGCM_FPGRY'][zpExpOk] = expGray[zpExpIndex[zpExpOk]]
         zpStruct['FGCM_FPVAR'][zpExpOk] = expGrayRMS[zpExpIndex[zpExpOk]]**2.
 
-        self.fgcmLog.log('INFO','%d exposure/ccd sets have exposures with >=%d good ccds' %
+        self.fgcmLog.info('%d exposure/ccd sets have exposures with >=%d good ccds' %
                          (zpExpOk.size, self.minCCDPerExp))
 
         # look up the I0 and I10s.  These are defined for everything
@@ -212,7 +212,7 @@ class FgcmZeropoints(object):
         zpStruct['FGCM_ZPTVAR'][goodCCD] = ccdGrayErr[zpExpIndex[goodCCD],
                                                       zpCCDIndex[goodCCD]]**2.
 
-        self.fgcmLog.log('INFO','%d CCDs are Good (>=%d stars; err <= %.3f)' %
+        self.fgcmLog.info('%d CCDs are Good (>=%d stars; err <= %.3f)' %
                          (goodCCD.size, self.minStarPerCCD, self.maxCCDGrayErr))
 
         # check: if this has too few stars on the ccd OR the ccd error is too big
@@ -239,7 +239,7 @@ class FgcmZeropoints(object):
         zpStruct['FGCM_GRY'][badCCDGoodExp] = expGray[zpExpIndex[badCCDGoodExp]]
         zpStruct['FGCM_ZPTVAR'][badCCDGoodExp] = expGrayRMS[zpExpIndex[badCCDGoodExp]]**2.
 
-        self.fgcmLog.log('INFO','%d CCDs recovered from good exposures (>=%d good CCDs, etc.)' %
+        self.fgcmLog.info('%d CCDs recovered from good exposures (>=%d good CCDs, etc.)' %
                          (badCCDGoodExp.size, self.minCCDPerExp))
 
         # flag the photometric (fit) exposures
@@ -249,14 +249,14 @@ class FgcmZeropoints(object):
         zpStruct['FGCM_FLAG'][photZpIndex[photFitBand]] |= (
             zpFlagDict['PHOTOMETRIC_FIT_EXPOSURE'])
 
-        self.fgcmLog.log('INFO','%d CCDs marked as photometric, used in fit' %
+        self.fgcmLog.info('%d CCDs marked as photometric, used in fit' %
                          (photFitBand.size))
 
         photExtraBand, = np.where(self.fgcmPars.expExtraBandFlag[zpExpIndex[photZpIndex]])
         zpStruct['FGCM_FLAG'][photZpIndex[photExtraBand]] |= (
             zpFlagDict['PHOTOMETRIC_EXTRA_EXPOSURE'])
 
-        self.fgcmLog.log('INFO','%d CCDs marked as photometric, not used in fit' %
+        self.fgcmLog.info('%d CCDs marked as photometric, not used in fit' %
                          (photExtraBand.size))
 
         # flag the non-photometric exposures on calibratable nights
@@ -271,7 +271,7 @@ class FgcmZeropoints(object):
                            ((self.fgcmPars.expFlag[zpExpIndex] & rejectMask) == 0))
         zpStruct['FGCM_FLAG'][nonPhotZpIndex] |= zpFlagDict['NONPHOTOMETRIC_FIT_NIGHT']
 
-        self.fgcmLog.log('INFO','%d CCDs marked non-photometric, on a night with a fit' %
+        self.fgcmLog.info('%d CCDs marked non-photometric, on a night with a fit' %
                          (nonPhotZpIndex.size))
 
         # and the exposures on non-calibratable nights (photometric or not, we don't know)
@@ -282,7 +282,7 @@ class FgcmZeropoints(object):
                                     ((self.fgcmPars.expFlag[zpExpIndex] & rejectMask) == 0))
         zpStruct['FGCM_FLAG'][badNightZpIndex] |= zpFlagDict['NOFIT_NIGHT']
 
-        self.fgcmLog.log('INFO','%d CCDs on nights without a fit (assume standard atmosphere)' %
+        self.fgcmLog.info('%d CCDs on nights without a fit (assume standard atmosphere)' %
                          (badNightZpIndex.size))
 
         # and finally, the hopeless exposures
@@ -291,7 +291,7 @@ class FgcmZeropoints(object):
         hopelessZpIndex, = np.where(((self.fgcmPars.expFlag[zpExpIndex] & acceptMask) > 0))
         zpStruct['FGCM_FLAG'][hopelessZpIndex] |= zpFlagDict['CANNOT_COMPUTE_ZEROPOINT']
 
-        self.fgcmLog.log('INFO','%d CCDs marked as hopeless (cannot compute zeropoint)' %
+        self.fgcmLog.info('%d CCDs marked as hopeless (cannot compute zeropoint)' %
                          (hopelessZpIndex.size))
 
         # now we can fill the zeropoints
@@ -369,7 +369,7 @@ class FgcmZeropoints(object):
         ############
         ## plots
         ############
-        self.fgcmLog.log('INFO','Making I1/R1 plots...')
+        self.fgcmLog.info('Making I1/R1 plots...')
 
         plotter = FgcmZeropointPlotter(zpStruct, self.fgcmPars.bands,
                                        self.plotPath, self.outfileBaseWithCycle)
@@ -377,13 +377,13 @@ class FgcmZeropoints(object):
         plotter.makeR1I1Plots()
         plotter.makeR1I1Maps(self.ccdOffsets, ccdField=self.ccdField)
 
-        #self.fgcmLog.log('INFO','Making zeropoint summary plots...')
+        #self.fgcmLog.info('Making zeropoint summary plots...')
         #plotter.makeZpPlots()
 
 
         ## compare I0 and R0, I1 and R1
 
-        #self.fgcmLog.log('INFO','Making I1/R1 plots...')
+        #self.fgcmLog.info('Making I1/R1 plots...')
         #acceptMask = (zpFlagDict['PHOTOMETRIC_FIT_EXPOSURE'] |
         #              zpFlagDict['PHOTOMETRIC_EXTRA_EXPOSURE'])
         #for i in xrange(self.fgcmPars.nBands):
@@ -433,7 +433,7 @@ class FgcmZeropoints(object):
         #                                       self.fgcmPars.bands[i]))#
 
         # need to know the mean zeropoint per exposure
-        self.fgcmLog.log('INFO','Making zeropoint summary plots...')
+        self.fgcmLog.info('Making zeropoint summary plots...')
 
         expZpMean = np.zeros(self.fgcmPars.nExp,dtype='f4')
         expZpNCCD = np.zeros(self.fgcmPars.nExp,dtype='i4')
@@ -511,7 +511,7 @@ class FgcmZeropoints(object):
         import fitsio
 
         outFile = '%s/%s_zpt.fits' % (self.outputPath,self.outfileBaseWithCycle)
-        self.fgcmLog.log('INFO','Saving zeropoints to %s' % (outFile))
+        self.fgcmLog.info('Saving zeropoints to %s' % (outFile))
         fitsio.write(outFile,self.zpStruct,clobber=True,extname='ZPTS')
 
     def saveAtmFits(self):
@@ -521,7 +521,7 @@ class FgcmZeropoints(object):
         import fitsio
 
         outFile = '%s/%s_atm.fits' % (self.outputPath,self.outfileBaseWithCycle)
-        self.fgcmLog.log('INFO','Saving atmosphere parameters to %s' % (outFile))
+        self.fgcmLog.info('Saving atmosphere parameters to %s' % (outFile))
         fitsio.write(outFile,self.atmStruct,clobber=True,extname='ATMPARS')
 
 class FgcmZeropointPlotter(object):

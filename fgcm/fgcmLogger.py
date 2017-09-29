@@ -8,29 +8,42 @@ from fgcmUtilities import logDict
 class FgcmLogger(object):
     """
     """
-    def __init__(self,logFile,logLevel):
+    def __init__(self,logFile,logLevel,printLogger=False):
 
         self.logFile = logFile
+        self.printLogger = printLogger
 
-        # this might fail.  Let it throw its exception?
-        self.logF = open(self.logFile,'w')
+        if not printLogger:
+            # this might fail.  Let it throw its exception?
+            self.logF = open(self.logFile,'w')
 
         self.logLevel = logLevel
 
         if (logLevel not in logDict):
             raise ValueError("Illegal logLevel: %s" % (logLevel))
 
+    def info(self,logString):
+        """
+        """
+        self.log('INFO', logString)
 
-    def log(self,logType,logString,printOnly=False):
+    def debug(self,logString):
+        """
+        """
+        self.log('DEBUG', logString)
+
+    def log(self,logType,logString):
         """
         """
 
         if (logDict[logType] <= logDict[self.logLevel]):
-            if (not printOnly):
+            if not self.printLogger:
+            #if (not printOnly):
                 self.logF.write(logString+'\n')
                 self.logF.flush()
 
             try:
+                # we also print to stdout
                 print(logString)
             except:
                 # sometimes it just fails...let it go.
@@ -61,6 +74,7 @@ class FgcmLogger(object):
     def stopLogging(self):
         """
         """
-        self.logF.close()
+        if not self.printLogger:
+            self.logF.close()
 
         self.logLevel == 0
