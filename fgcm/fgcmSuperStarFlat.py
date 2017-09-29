@@ -106,7 +106,7 @@ class FgcmSuperStarFlat(object):
                                   self.superStarFlatSigma[i,j]))
                 self.fgcmLog.info('DeltaSuperStar epoch %d filter %s: %.4f +/- %.4f' %
                                  (i,self.fgcmPars.lutFilterNames[j],
-                                  self.deltaSuperStarFlatMean[i,i],
+                                  self.deltaSuperStarFlatMean[i,j],
                                   self.deltaSuperStarFlatSigma[i,j]))
 
         self.fgcmLog.info('Computed SuperStarFlats in %.2f seconds.' %
