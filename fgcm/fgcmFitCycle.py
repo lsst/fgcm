@@ -24,6 +24,7 @@ from fgcmSigFgcm import FgcmSigFgcm
 from fgcmFlagVariables import FgcmFlagVariables
 
 from fgcmUtilities import zpFlagDict
+from fgcmUtilities import getMemoryString
 
 
 from sharedNumpyMemManager import SharedNumpyMemManager as snmm
@@ -103,7 +104,8 @@ class FgcmFitCycle(object):
         """
         """
 
-        self.fgcmLog.logMemoryUsage('INFO', 'Setting Up with fits')
+        #self.fgcmLog.logMemoryUsage('INFO', 'Setting Up with fits')
+        self.fgcmLog.info(getMemoryString('Setting up with fits'))
 
         # read in the LUT
         #self.fgcmLUT = FgcmLUT(self.fgcmConfig.lutFile)
@@ -146,7 +148,8 @@ class FgcmFitCycle(object):
         self.fgcmGray = FgcmGray(self.fgcmConfig,self.fgcmPars,self.fgcmStars)
 
         self.setupComplete = True
-        self.fgcmLog.logMemoryUsage('INFO','FitCycle Prepared')
+        # self.fgcmLog.logMemoryUsage('INFO','FitCycle Prepared')
+        self.fgcmLog.info(getMemoryString('FitCycle Prepared'))
 
 
 
@@ -202,7 +205,8 @@ class FgcmFitCycle(object):
             brightObs = FgcmBrightObs(self.fgcmConfig,self.fgcmPars,self.fgcmStars,self.fgcmLUT)
             brightObs.brightestObsMeanMag(computeSEDSlopes=True)
 
-            self.fgcmLog.logMemoryUsage('INFO','FitCycle Post Bright-Obs')
+            # self.fgcmLog.logMemoryUsage('INFO','FitCycle Post Bright-Obs')
+            self.fgcmLog.info(getMemoryString('FitCycle Post Bright-Obs'))
 
             # flag stars that are outside our color cuts
             self.fgcmStars.performColorCuts()
@@ -250,7 +254,8 @@ class FgcmFitCycle(object):
         #self.fgcmStars.selectStarsMinObs(goodExpsIndex=goodExpsIndex)
         self.fgcmStars.selectStarsMinObsExpIndex(goodExpsIndex)
 
-        self.fgcmLog.logMemoryUsage('INFO','FitCycle Pre-Fit')
+        # self.fgcmLog.logMemoryUsage('INFO','FitCycle Pre-Fit')
+        self.fgcmLog.info(getMemoryString('FitCycle Pre-Fit'))
 
         # Perform Fit (subroutine)
         if (self.fgcmConfig.maxIter > 0):
@@ -259,7 +264,8 @@ class FgcmFitCycle(object):
         else:
             self.fgcmLog.info('FitCycle skipping fit because maxIter == 0')
 
-        self.fgcmLog.logMemoryUsage('INFO','FitCycle Post-Fit')
+        # self.fgcmLog.logMemoryUsage('INFO','FitCycle Post-Fit')
+        self.fgcmLog.info(getMemoryString('FitCycle Post-Fit'))
 
         # another run to soak up the reserve stars...
         # FIXME: look for more efficient way of doing this
@@ -271,12 +277,14 @@ class FgcmFitCycle(object):
         _ = self.fgcmChisq(self.fgcmPars.getParArray(), allExposures=True, includeReserve=True)
 
 
-        self.fgcmLog.logMemoryUsage('INFO','After recomputing chisq for all exposures')
+        # self.fgcmLog.logMemoryUsage('INFO','After recomputing chisq for all exposures')
+        self.fgcmLog.info(getMemoryString('After recomputing chisq for all exposures'))
 
         # Compute CCD^gray and EXP^gray
         self.fgcmLog.debug('FitCycle computing Exp and CCD Gray')
         self.fgcmGray.computeCCDAndExpGray()
-        self.fgcmLog.logMemoryUsage('INFO','After computing CCD and Exp Gray')
+        # self.fgcmLog.logMemoryUsage('INFO','After computing CCD and Exp Gray')
+        self.fgcmLog.info(getMemoryString('After computing CCD and Exp Gray'))
 
         # Compute sigFgcm
         self.fgcmLog.debug('FitCycle computing sigFgcm')
@@ -285,14 +293,16 @@ class FgcmFitCycle(object):
         # first compute with all...(better stats)
         self.fgcmSigFgcm.computeSigFgcm(reserved=False,doPlots=True,save=True)
         self.fgcmSigFgcm.computeSigFgcm(reserved=True,doPlots=True,save=False)
-        self.fgcmLog.logMemoryUsage('INFO','After computing sigFGCM')
+        # self.fgcmLog.logMemoryUsage('INFO','After computing sigFGCM')
+        self.fgcmLog.info(getMemoryString('After computing sigFGCM'))
 
         # Flag variables for next cycle
         self.fgcmLog.debug('FitCycle flagging variables')
         self.fgcmFlagVars = FgcmFlagVariables(self.fgcmConfig,self.fgcmPars,
                                               self.fgcmStars)
         self.fgcmFlagVars.flagVariables()
-        self.fgcmLog.logMemoryUsage('INFO','After flagging variables')
+        # self.fgcmLog.logMemoryUsage('INFO','After flagging variables')
+        self.fgcmLog.info(getMemoryString('After flagging variables'))
 
         # Re-flag exposures for superstar, aperture, etc.
         self.fgcmLog.debug('FitCycle re-selecting good exposures')
@@ -304,19 +314,22 @@ class FgcmFitCycle(object):
                                            self.fgcmStars,self.fgcmLUT)
         #self.fgcmRetrieval.computeRetrievedIntegrals()
         self.fgcmRetrieval.computeRetrievalIntegrals()
-        self.fgcmLog.logMemoryUsage('INFO','After computing retrieved integrals')
+        # self.fgcmLog.logMemoryUsage('INFO','After computing retrieved integrals')
+        self.fgcmLog.info(getMemoryString('After computing retrieved integrals'))
 
         # Compute SuperStar Flats
         self.fgcmLog.debug('FitCycle computing SuperStarFlats')
         superStarFlat = FgcmSuperStarFlat(self.fgcmConfig,self.fgcmPars,self.fgcmGray)
         superStarFlat.computeSuperStarFlats()
-        self.fgcmLog.logMemoryUsage('INFO','After computing superstar flats')
+        # self.fgcmLog.logMemoryUsage('INFO','After computing superstar flats')
+        self.fgcmLog.info(getMemoryString('After computing superstar flats'))
 
         # Compute Aperture Corrections
         self.fgcmLog.debug('FitCycle computing ApertureCorrections')
         aperCorr = FgcmApertureCorrection(self.fgcmConfig,self.fgcmPars,self.fgcmGray)
         aperCorr.computeApertureCorrections()
-        self.fgcmLog.logMemoryUsage('INFO','After computing aperture corrections')
+        # self.fgcmLog.logMemoryUsage('INFO','After computing aperture corrections')
+        self.fgcmLog.info(getMemoryString('After computing aperture corrections'))
 
         ## MAYBE:
         #   apply superstar and aperture corrections to grays
@@ -328,7 +341,8 @@ class FgcmFitCycle(object):
                                        self.fgcmLUT,self.fgcmGray,
                                        self.fgcmRetrieval)
         self.fgcmZpts.computeZeropoints()
-        self.fgcmLog.logMemoryUsage('INFO','After computing zeropoints')
+        # self.fgcmLog.logMemoryUsage('INFO','After computing zeropoints')
+        self.fgcmLog.info(getMemoryString('After computing zeropoints'))
 
         if (self.useFits):
             self.fgcmZpts.saveZptFits()
@@ -367,7 +381,8 @@ class FgcmFitCycle(object):
 
 
 
-        self.fgcmLog.logMemoryUsage('INFO','FitCycle Completed')
+        # self.fgcmLog.logMemoryUsage('INFO','FitCycle Completed')
+        self.fgcmLog.info(getMemoryString('FitCycle Completed')
 
     def _doFit(self,doPlots=True):
         """
