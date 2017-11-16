@@ -78,6 +78,8 @@ class FgcmStars(object):
 
         self.magConstant = 2.5/np.log(10)
 
+        self.hasXY = False
+
     def loadStarsFromFits(self,fgcmPars,computeNobs=True):
         """
         """
@@ -122,6 +124,8 @@ class FgcmStars(object):
             flagID = None
             flagFlag = None
 
+        # FIXME: add support to x/y from fits files
+
         # process
         self.loadStars(fgcmPars,
                        obs[self.expField],
@@ -136,6 +140,8 @@ class FgcmStars(object):
                        pos['DEC'],
                        pos['OBSARRINDEX'],
                        pos['NOBS'],
+                       obsX=None,
+                       obsY=None
                        flagID=flagID,
                        flagFlag=flagFlag,
                        computeNobs=computeNobs)
@@ -147,34 +153,12 @@ class FgcmStars(object):
 
     def loadStars(self, fgcmPars,
                   obsExp, obsCCD, obsRA, obsDec, obsMag, obsMagErr, obsFilterName,
-                  objID, objRA, objDec, objObsIndex, objNobs,
+                  objID, objRA, objDec, objObsIndex, objNobs, obsX=None, obsY=None,
                   flagID=None, flagFlag=None, computeNobs=True):
         """
         """
 
-
-    #def _loadStars(self,fgcmPars):
-
-        # read in the observational indices
-        #startTime=time.time()
-        #self.fgcmLog.info('Reading in observation indices...')
-        #index=fitsio.read(self.indexFile,ext='INDEX')
-        #self.fgcmLog.info('Done reading in %d observation indices in %.1f seconds.' %
-        #                 (index.size,time.time()-startTime))
-
-        # sort them for reference
-        #startTime=time.time()
-
-        # and only read these entries from the obs table
-        #startTime=time.time()
-        #self.fgcmLog.info('Reading in star observations...')
-        ## new trade-off: read in whole file and cut it down.
-        ##  Much faster overall, I think.
-        #obs=fitsio.read(self.obsFile,ext=1,rows=index['OBSINDEX'][indexSort])
-        #obs=fitsio.read(self.obsFile,ext=1)
-        #obs=obs[index['OBSINDEX']]
-        #self.fgcmLog.info('Done reading in %d observations in %.1f seconds.' %
-        #                 (obs.size,time.time()-startTime))
+        # FIXME: check that these are all the same length!
 
         # and fill in new, cut indices
         #  obsIndex: pointer to a particular row in the obs table
@@ -217,7 +201,13 @@ class FgcmStars(object):
         self.obsMagADUErrHandle = snmm.createArray(self.nStarObs,dtype='f4')
         #  obsMagStd: corrected (to standard passband) mag of individual observation
         self.obsMagStdHandle = snmm.createArray(self.nStarObs,dtype='f4',syncAccess=True)
+        if (obsX is not None and obsY is not None):
+            self.hasXY = True
 
+            #  obsX: x position on the CCD of the given observation
+            self.obsXHandle = snmm.createArray(self.nStarObs,dtype='f4')
+            #  obsY: y position on the CCD of the given observation
+            self.obsYHandle = snmm.createArray(self.nStarObs,dtype='f4')
 
         snmm.getArray(self.obsExpHandle)[:] = obsExp
         snmm.getArray(self.obsCCDHandle)[:] = obsCCD
@@ -226,6 +216,9 @@ class FgcmStars(object):
         snmm.getArray(self.obsMagADUHandle)[:] = obsMag
         snmm.getArray(self.obsMagADUErrHandle)[:] = obsMagErr
         snmm.getArray(self.obsMagStdHandle)[:] = obsMag   # same as raw at first
+        if self.hasXY:
+            snmm.getArray(self.obsXHandle)[:] = obsX
+            snmm.getArray(self.obsYHandle)[:] = obsY
 
         self.fgcmLog.info('Applying sigma0Phot = %.4f to mag errs' %
                          (self.sigma0Phot))
