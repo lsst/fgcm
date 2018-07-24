@@ -26,6 +26,7 @@ from .fgcmFlagVariables import FgcmFlagVariables
 from .fgcmRetrieveAtmosphere import FgcmRetrieveAtmosphere
 from .fgcmModelMagErrors import FgcmModelMagErrors
 from .fgcmConnectivity import FgcmConnectivity
+from .fgcmCorrelations import FgcmCorrelations
 
 from .fgcmUtilities import zpFlagDict
 from .fgcmUtilities import getMemoryString
@@ -376,6 +377,12 @@ class FgcmFitCycle(object):
 
         self.fgcmLog.info(getMemoryString('After computing sigFGCM'))
 
+        # Compute correlations
+        self.fgcmLog.debug('FitCycle computing correlations')
+        self.fgcmCorrelations = FgcmCorrelations(self.fgcmConfig, self.fgcmPars,
+                                                 self.fgcmStars)
+        self.fgcmCorrelations.computeCorrelations(reserved=True)
+
         # Flag variables for next cycle
         self.fgcmLog.debug('FitCycle flagging variables')
         self.fgcmFlagVars = FgcmFlagVariables(self.fgcmConfig,self.fgcmPars,
@@ -440,6 +447,7 @@ class FgcmFitCycle(object):
                            fgcmGray=self.fgcmGray)
 
         self.fgcmSigFgcm.computeSigFgcm(reserved=True,doPlots=True,save=False,crunch=True)
+        self.fgcmCorrelations.computeCorrelations(reserved=True, crunch=True)
 
         self.fgcmLog.info(getMemoryString('After computing zeropoints'))
 
