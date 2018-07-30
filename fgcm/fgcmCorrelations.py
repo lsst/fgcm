@@ -46,6 +46,7 @@ class FgcmCorrelations(object):
         self.cycleNumber = fgcmConfig.cycleNumber
         self.bandRequiredIndex = fgcmConfig.bandRequiredIndex
         self.bandNotRequiredIndex = fgcmConfig.bandNotRequiredIndex
+        self.nCore = fgcmConfig.nCore
 
     def computeCorrelations(self,reserved=False,crunch=False):
         """
@@ -120,7 +121,7 @@ class FgcmCorrelations(object):
                                    ra_units='deg', dec_units='deg')
             kk = treecorr.KKCorrelation(bin_size=0.1, min_sep=0.5, max_sep=200.0,
                                         sep_units='arcmin')
-            kk.process(cat)
+            kk.process(cat, num_threads=self.nCore)
 
             ax.plot(kk.meanr, kk.xi, 'r.')
             ax.set_xscale('log')
@@ -140,6 +141,7 @@ class FgcmCorrelations(object):
                 extraName += '_crunched'
 
             ax.set_title(extraName)
+            fig.tight_layout()
 
             fig.savefig('%s/%s_egraycorr_%s_%s.png' % (self.plotPath,
                                                        self.outfileBaseWithCycle,
@@ -147,6 +149,22 @@ class FgcmCorrelations(object):
                                                        self.fgcmPars.bands[bandIndex]))
             plt.close()
 
+            tempCat = np.zeros(use.size, dtype=[('ra', 'f8'),
+                                                ('dec', 'f8'),
+                                                ('egray', 'f4'),
+                                                ('expnum', 'i4'),
+                                                ('mjd', 'f8'),
+                                                ('nightindex', 'i4')])
+            tempCat['ra'] = objRA[obsObjIDIndex[goodObs[use]]]
+            tempCat['dec'] = objDec[obsObjIDIndex[goodObs[use]]]
+            tempCat['egray'] = EGrayGO[use]
+            tempCat['expnum'] = self.fgcmPars.expArray[obsExpIndex[goodObs[use]]]
+            tempCat['mjd'] = self.fgcmPars.expMJD[obsExpIndex[goodObs[use]]]
+            tempCat['nightindex'] = self.fgcmPars.expNightIndex[obsExpIndex[goodObs[use]]]
+            import fitsio
+            fitsio.write('%s_egraycorr_%s_%s.fits' % (self.outfileBaseWithCycle,
+                                                     extraName,
+                                                     self.fgcmPars.bands[bandIndex]), tempCat, clobber=True)
 
         self.fgcmLog.info('Done computing correlations in %.2f sec.' %
                           (time.time() - startTime))
