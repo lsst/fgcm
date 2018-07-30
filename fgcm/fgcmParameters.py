@@ -438,7 +438,10 @@ class FgcmParameters(object):
             self.compModelErrPars = np.reshape(inParams['COMPMODELERRPARS'][0], (7, self.nBands))
         except ValueError:
             # This is okay, there will be no model error correction from old run
-            pass
+            self.compModelErrExptimePivot = np.zeros(self.nBands)
+            self.compModelErrFwhmPivot = np.zeros(self.nBands)
+            self.compModelErrSkyPivot = np.zeros(self.nBands)
+            self.compModelErrPars = np.zeros((7, self.nBands))
 
         self.compExpGray = np.atleast_1d(inParams['COMPEXPGRAY'][0])
         self.compVarGray = np.atleast_1d(inParams['COMPVARGRAY'][0])
