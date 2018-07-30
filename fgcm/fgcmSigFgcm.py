@@ -343,6 +343,7 @@ class FgcmSigFgcm(object):
                                                          self.fgcmPars.bands[bandIndex]))
             plt.close()
 
+        """
         # And by neighbor distance...
         try:
             import smatch
@@ -471,7 +472,7 @@ class FgcmSigFgcm(object):
                                                          extraName,
                                                          self.fgcmPars.bands[bandIndex]))
             plt.close()
-
+            """
         self.fgcmLog.info('Done computing sigFgcm in %.2f sec.' %
                          (time.time() - startTime))
 
