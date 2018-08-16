@@ -255,7 +255,8 @@ class FgcmMakeStars(object):
         # Define the dtype
         dtype=[('fgcm_id', 'i4'),
                ('ra', 'f8'),
-               ('dec', 'f8')]
+               ('dec', 'f8'),
+               ('nndist', 'f4')]
 
         pixelCats = []
 
@@ -351,8 +352,6 @@ class FgcmMakeStars(object):
                         starInd = i2[i1a]
                         # make sure this doesn't get used again
                         hist[starInd] = 0
-                        #bandPixelCatTemp['ra'][index] = np.sum(raTemp[p1a[starInd]]) / starInd.size
-                        #bandPixelCatTemp['dec'][index] = np.sum(decArray[p1a[starInd]]) / starInd.size
                         bandPixelCatTemp['ra'][index] = np.sum(raTemp[starInd]) / starInd.size
                         bandPixelCatTemp['dec'][index] = np.sum(decArrayUse[starInd]) / starInd.size
                         index = index + 1
@@ -388,6 +387,27 @@ class FgcmMakeStars(object):
                     print(" Found %d new reference stars in %s band" % (bandPixelCatTemp.size, referenceBand))
 
                     bandPixelCat = np.append(bandPixelCat, bandPixelCatTemp)
+
+            # And match to neighbors, within 180"
+            maxDist = 180.0
+            if hasSmatch:
+                matches = smatch.match(bandPixelCat['ra'], bandPixelCat['dec'],
+                                       maxDist / 3600.0,
+                                       bandPixelCat['ra'], bandPixelCat['dec'],
+                                       maxmatch=2)
+                i1 = matches['i1']
+                i2 = matches['i2']
+                dist = np.degrees(np.arccos(np.clip(matches['cosdist'], None, 1.0))) * 3600.0
+            else:
+                htm = esutil.htm.HTM(11)
+
+                matcher = esutil.htm.Matcher(11, bandPixelCat['ra'], bandPixelCat['dec'])
+                matches = matcher.match(bandPixelCat['ra'], bandPixelCat['dec'], maxDist / 3600.0, maxmatch=2)
+                i1 = matches[1]
+                i2 = matches[0]
+                dist = matches[2] * 3600.0
+
+            ## FIXME
 
             if bandPixelCat is not None:
                 # Append to list of catalogs...
@@ -594,11 +614,13 @@ class FgcmMakeStars(object):
         self.objIndexCat = np.zeros(gd.size, dtype=[('fgcm_id','i4'),
                                                     ('ra','f8'),
                                                     ('dec','f8'),
+                                                    ('nndist', 'f4'),
                                                     ('obsarrindex','i4'),
                                                     ('nobs','i4')])
         self.objIndexCat['fgcm_id'][:] = self.objCat['fgcm_id'][gd]
         self.objIndexCat['ra'][:] = self.objCat['ra'][gd]
         self.objIndexCat['dec'][:] = self.objCat['dec'][gd]
+        self.objIndexCat['nndist'][:] = self.objCat['nndist'][gd]
         # this is the number of observations per object
         self.objIndexCat['nobs'][:] = nObsPerObj[gd]
         # and the index is given by the cumulative sum
