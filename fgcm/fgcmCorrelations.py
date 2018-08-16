@@ -89,6 +89,7 @@ class FgcmCorrelations(object):
         objObsIndex = snmm.getArray(self.fgcmStars.objObsIndexHandle)
         obsObjIDIndex = snmm.getArray(self.fgcmStars.obsObjIDIndexHandle)
         obsExpIndex = snmm.getArray(self.fgcmStars.obsExpIndexHandle)
+        obsCCD = snmm.getArray(self.fgcmStars.obsCCDHandle)
         obsFlag = snmm.getArray(self.fgcmStars.obsFlagHandle)
 
         goodStars = self.fgcmStars.getGoodStarIndices(onlyReserve=True, checkMinObs=True)
@@ -149,16 +150,25 @@ class FgcmCorrelations(object):
                                                        self.fgcmPars.bands[bandIndex]))
             plt.close()
 
+            obsX = snmm.getArray(self.fgcmStars.obsXHandle)
+            obsY = snmm.getArray(self.fgcmStars.obsYHandle)
+
             tempCat = np.zeros(use.size, dtype=[('ra', 'f8'),
                                                 ('dec', 'f8'),
+                                                ('x', 'f4'),
+                                                ('y', 'f4'),
                                                 ('egray', 'f4'),
                                                 ('expnum', 'i4'),
+                                                ('ccdnum', 'i4'),
                                                 ('mjd', 'f8'),
                                                 ('nightindex', 'i4')])
             tempCat['ra'] = objRA[obsObjIDIndex[goodObs[use]]]
             tempCat['dec'] = objDec[obsObjIDIndex[goodObs[use]]]
+            tempCat['x'] = obsX[goodObs[use]]
+            tempCat['y'] = obsY[goodObs[use]]
             tempCat['egray'] = EGrayGO[use]
             tempCat['expnum'] = self.fgcmPars.expArray[obsExpIndex[goodObs[use]]]
+            tempCat['ccdnum'] = obsCCD[goodObs[use]]
             tempCat['mjd'] = self.fgcmPars.expMJD[obsExpIndex[goodObs[use]]]
             tempCat['nightindex'] = self.fgcmPars.expNightIndex[obsExpIndex[goodObs[use]]]
             import fitsio
