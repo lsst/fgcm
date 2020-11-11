@@ -12,7 +12,6 @@ from .fgcmUtilities import objFlagDict
 from .fgcmNumbaUtilities import numba_test, add_at_1d, add_at_2d, add_at_3d
 
 import multiprocessing
-from multiprocessing import Pool
 
 from .sharedNumpyMemManager import SharedNumpyMemManager as snmm
 
@@ -367,7 +366,7 @@ class FgcmChisq(object):
             self.fgcmLog.debug('Running chisq on %d cores' % (self.nCore))
 
             # make a pool
-            pool = Pool(processes=self.nCore)
+            pool = mp_ctx.Pool(processes=self.nCore)
             # Compute magnitudes
             pool.map(self._magWorker, workerList, chunksize=1)
 

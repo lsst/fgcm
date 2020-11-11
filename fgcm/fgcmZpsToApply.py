@@ -5,7 +5,6 @@ import os
 from .fgcmNumbaUtilities import numba_test, add_at_1d, add_at_2d, add_at_3d
 
 import multiprocessing
-from multiprocessing import Pool
 
 from .sharedNumpyMemManager import SharedNumpyMemManager as snmm
 
@@ -158,7 +157,7 @@ class FgcmZpsToApply(object):
 
         workerList.sort(key=lambda elt:elt[1].size, reverse=True)
 
-        pool = Pool(processes=self.nCore)
+        pool = mp_ctx.Pool(processes=self.nCore)
         pool.map(self._worker, workerList, chunksize=1)
 
         pool.close()
