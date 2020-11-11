@@ -325,8 +325,9 @@ class FgcmChisq(object):
         else:
             # regular multi-core
 
+            mp_ctx = multiprocessing.get_context('fork')
             # make a dummy process to discover starting child number
-            proc = multiprocessing.Process()
+            proc = mp_ctx.Process()
             workerIndex = proc._identity[0]+1
             proc = None
 

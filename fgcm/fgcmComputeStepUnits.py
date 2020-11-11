@@ -112,7 +112,8 @@ class FgcmComputeStepUnits(object):
         # going to have one or the other, and this doesn't care which is which
         self.nSums += 2 * self.fgcmPars.nFitPars
 
-        proc = multiprocessing.Process()
+        mp_ctx = multiprocessing.get_context("fork")
+        proc = mp_ctx.Process()
         workerIndex = proc._identity[0]+1
         proc = None
 

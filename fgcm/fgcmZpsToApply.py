@@ -138,7 +138,8 @@ class FgcmZpsToApply(object):
 
         goodStarsSub, goodObs = self.fgcmStars.getGoodObsIndices(goodStars, expFlag=self.fgcmPars.expFlag)
 
-        proc = multiprocessing.Process()
+        mp_ctx = multiprocessing.get_context('fork')
+        proc = mp_ctx.Process()
         workerIndex = proc._identity[0] + 1
         proc = None
 

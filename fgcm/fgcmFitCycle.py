@@ -36,20 +36,6 @@ from .fgcmUtilities import computeCCDOffsetSigns
 
 from .sharedNumpyMemManager import SharedNumpyMemManager as snmm
 
-import multiprocessing
-import platform
-
-# Fix for multiprocessing on macos
-if len(platform.mac_ver()[0]) > 0:
-    parts = platform.mac_ver()[0].split('.')
-    if (int(parts[0]) > 10) or (int(parts[0]) == 10 and int(parts[0]) >= 15):
-        # macos >= 10.15, python < 3.8 (primarily for matplotlib)
-        if sys.version_info.major == 3 and sys.version_info.minor < 8:
-            multiprocessing.set_start_method('forkserver')
-    # python 3.8 changes start method to "spawn" by default
-    if sys.version_info.major == 3 and sys.version_info.minor >= 8:
-        multiprocessing.set_start_method('fork', force=True)
-
 
 class FgcmFitCycle(object):
     """
