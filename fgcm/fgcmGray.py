@@ -920,7 +920,8 @@ class FgcmGray(object):
         expGray = snmm.getArray(self.expGrayHandle)
 
         expUse,=np.where((self.fgcmPars.expFlag == 0) &
-                         (expNGoodStars > self.minStarPerExp))
+                         (expNGoodStars > self.minStarPerExp) &
+                         (expGray > self.illegalValue))
 
         for i in range(self.fgcmPars.nBands):
             inBand, = np.where(self.fgcmPars.expBandIndex[expUse] == i)
@@ -934,6 +935,10 @@ class FgcmGray(object):
             fig.clf()
 
             ax=fig.add_subplot(111)
+
+            self.fgcmLog.info("!!!!! Band = %s" % (self.fgcmPars.bands[i]))
+            for jj in inBand:
+                self.fgcmLog.info("!!!!!  expGray[%d] = %.10f" % (jj, expGray[expUse[jj]]))
 
             coeff = histoGauss(ax, expGray[expUse[inBand]] * 1000.0)
             coeff[1] /= 1000.0
