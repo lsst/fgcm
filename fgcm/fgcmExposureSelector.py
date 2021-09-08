@@ -50,6 +50,15 @@ class FgcmExposureSelector(object):
             logFlaggedExposuresPerBand(self.fgcmLog, self.fgcmPars,
                                        'TOO_FEW_STARS')
 
+        for ii in range(len(self.fgcmPars.compExpGray)):
+            self.fgcmLog.info("!!!!! Exposure %d: compExpGray = %.10f" % (self.fgcmPars.expArray[ii],
+                                                                          self.fgcmPars.compExpGray[ii]))
+        for ii in range(len(self.expGrayPhotometricCut)):
+            self.fgcmLog.info("!!!!! %d: low = %.10f, high = %.10f" % (ii,
+                                                                       self.expGrayPhotometricCut[ii],
+                                                                       self.expGrayHighCut[ii]))
+
+
         bad,=np.where((self.fgcmPars.compExpGray <
                        self.expGrayPhotometricCut[self.fgcmPars.expBandIndex]) &
                       (self.fgcmPars.compNGoodStarPerExp > 0))

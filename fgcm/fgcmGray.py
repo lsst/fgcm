@@ -736,6 +736,10 @@ class FgcmGray(object):
         expGrayErr[bad] = self.illegalValue
         expNGoodTilings[bad] = self.illegalValue
 
+        for ii in range(len(expGray)):
+            self.fgcmLog.info("!!!!! Exposure %d: compExpGray = %.10f" % (self.fgcmPars.expArray[ii],
+                                                                          expGray[ii]))
+
         self.fgcmPars.compExpGray[:] = expGray
         self.fgcmPars.compVarGray[gd] = expGrayRMS[gd]**2.
         self.fgcmPars.compNGoodStarPerExp = expNGoodStars
