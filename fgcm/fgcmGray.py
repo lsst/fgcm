@@ -1112,7 +1112,8 @@ class FgcmGray(object):
         expGray = snmm.getArray(self.expGrayHandle)
 
         expUse,=np.where((self.fgcmPars.expFlag == 0) &
-                         (expNGoodStars > self.minStarPerExp))
+                         (expNGoodStars > self.minStarPerExp) &
+                         (expGray > self.illegalValue))
 
         expGrayPhotometricCut = np.zeros(self.fgcmPars.nBands)
         expGrayHighCut = np.zeros_like(expGrayPhotometricCut)
@@ -1128,6 +1129,10 @@ class FgcmGray(object):
             if inBand.size == 0:
                 continue
 
+            self.fgcmLog.info("!!!!! Band = %s" % (self.fgcmPars.bands[i]))
+            for jj in inBand:
+                self.fgcmLog.info("!!!!! expGray[%d] (cut) = %.10f" % (jj, expGray[expUse[jj]]))
+
             coeff = histoGauss(None, expGray[expUse[inBand]])
 
             # Use nsig * sigma - mean
@@ -1142,6 +1147,10 @@ class FgcmGray(object):
             cut = int(np.ceil(delta / self.autoPhotometricCutStep)) * self.autoPhotometricCutStep
             expGrayHighCut[i] = max(0.005,
                                     min(cut, expGrayHighCut[i]*2))
+
+            self.fgcmLog.info("!!!!! expGrayCut[%d]: %.10f, %.10f" % (i,
+                                                                      expGrayPhotometricCut[i],
+                                                                      expGrayHighCut[i]))
 
         return (expGrayPhotometricCut, expGrayHighCut)
 
