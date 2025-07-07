@@ -1,5 +1,5 @@
 import numpy as np
-
+import resource
 
 # Dictionary of object flags
 objFlagDict = {'TOO_FEW_OBS':2**0,
