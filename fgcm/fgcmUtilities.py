@@ -74,18 +74,15 @@ def getMemoryString(location):
     result = {'peak':0, 'rss':0}
     memoryString = ''
     try:
-        with open('/proc/self/status') as status:
-            for line in status:
-                parts = line.split()
-                key = parts[0][2:-1].lower()
-                if key in result:
-                    result[key] = int(parts[1])/1000
-
-            memoryString = 'Memory usage at %s: %d MB current; %d MB peak.' % (
-                location, result['rss'], result['peak'])
-    except:
-        memoryString = 'Could not get process status for memory usage at %s!' % (location)
-
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        peak = usage.ru_maxrss
+        if peak > 1024 * 1024 * 10:
+            peak = peak / (1024 * 1024)
+        else:
+            peak = peak / 1024
+        memoryString = f"Memory usage at {location}: unknown current; {peak:.0f} MB peak."
+    except Exception as e:
+        memoryString = f"Could not get memory usage at {location}! ({e})"
     return memoryString
 
 
